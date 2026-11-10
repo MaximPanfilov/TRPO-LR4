@@ -116,3 +116,32 @@ def test_add_product_with_empty_name_raises():
     w = Warehouse()
     with pytest.raises(ValueError):
         w.add_product("", 10, "2024-09-01", "2024-09-10")
+
+
+def test_remove_product_deletes_it_from_items():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    w.remove_product("яблоки")
+    items = w.get_items()
+    assert len(items) == 1
+    assert items[0].name == "груши"
+
+
+def test_remove_unknown_product_raises():
+    w = Warehouse()
+    with pytest.raises(KeyError):
+        w.remove_product("нет-такого")
+
+
+def test_remove_loaded_product_works(tmp_path):
+    file = tmp_path / "products.txt"
+    file.write_text(
+        "яблоки;10;2024-09-01;2024-09-10\n"
+        "груши;5;2024-09-02;2024-09-12\n",
+        encoding="utf-8",
+    )
+    w = Warehouse()
+    w.load_from_file(str(file))
+    w.remove_product("груши")
+    assert [p.name for p in w.get_items()] == ["яблоки"]
