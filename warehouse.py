@@ -36,6 +36,14 @@ def _parse_date(value: str):
         raise ValueError(f"Некорректная дата {value!r}: {e}")
 
 
+PRODUCT_TEMPLATES = {
+    "яблоки": {"received_at": "2024-09-01", "shipped_at": "2024-09-10"},
+    "груши":  {"received_at": "2024-09-02", "shipped_at": "2024-09-12"},
+    "сливы":  {"received_at": "2024-09-03", "shipped_at": "2024-09-13"},
+    "бананы": {"received_at": "2024-09-04", "shipped_at": "2024-09-14"},
+}
+
+
 class Warehouse:
     def __init__(self):
         self._items = []
@@ -91,6 +99,19 @@ class Warehouse:
         if p is None:
             raise KeyError(f"Товар '{name}' не найден")
         setattr(p, attr, value)
+
+    def add_from_template(self, template_name, quantity, received_at=None, shipped_at=None):
+        if template_name not in PRODUCT_TEMPLATES:
+            raise KeyError(f"Шаблон '{template_name}' не найден")
+        tpl = PRODUCT_TEMPLATES[template_name]
+        received_at = received_at if received_at is not None else tpl["received_at"]
+        shipped_at = shipped_at if shipped_at is not None else tpl["shipped_at"]
+        # даты-переопределения валидируем; шаблонные уже проверены при создании шаблона
+        if received_at != tpl["received_at"]:
+            _parse_date(received_at)
+        if shipped_at != tpl["shipped_at"]:
+            _parse_date(shipped_at)
+        self.add_product(template_name, quantity, received_at, shipped_at)
 
     def find_product(self, name):
         for p in self._items:

@@ -246,3 +246,46 @@ def test_set_shipped_date_keeps_received_and_quantity():
     p = w.find_product("яблоки")
     assert p.received_at == "2024-09-01"
     assert p.quantity == 10
+
+
+def test_add_from_template_uses_template_dates():
+    w = Warehouse()
+    w.add_from_template("яблоки", 7)
+    p = w.find_product("яблоки")
+    assert p is not None
+    assert p.quantity == 7
+    assert p.received_at == "2024-09-01"
+    assert p.shipped_at == "2024-09-10"
+
+
+def test_add_from_template_overrides_dates():
+    w = Warehouse()
+    w.add_from_template("яблоки", 7, received_at="2024-10-01", shipped_at="2024-10-20")
+    p = w.find_product("яблоки")
+    assert p.received_at == "2024-10-01"
+    assert p.shipped_at == "2024-10-20"
+
+
+def test_add_from_unknown_template_raises():
+    w = Warehouse()
+    with pytest.raises(KeyError):
+        w.add_from_template("ананасы", 3)
+
+
+def test_add_from_template_negative_quantity_raises():
+    w = Warehouse()
+    with pytest.raises(ValueError):
+        w.add_from_template("яблоки", -1)
+
+
+def test_add_from_template_duplicate_raises():
+    w = Warehouse()
+    w.add_from_template("яблоки", 7)
+    with pytest.raises(ValueError):
+        w.add_from_template("яблоки", 3)
+
+
+def test_add_from_template_invalid_override_date_raises():
+    w = Warehouse()
+    with pytest.raises(ValueError):
+        w.add_from_template("яблоки", 7, received_at="01.10.2024")
