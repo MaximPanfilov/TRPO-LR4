@@ -145,3 +145,30 @@ def test_remove_loaded_product_works(tmp_path):
     w.load_from_file(str(file))
     w.remove_product("груши")
     assert [p.name for p in w.get_items()] == ["яблоки"]
+
+
+def test_set_quantity_changes_value():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.set_quantity("яблоки", 25)
+    assert w.find_product("яблоки").quantity == 25
+
+
+def test_set_quantity_to_zero_allowed():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.set_quantity("яблоки", 0)
+    assert w.find_product("яблоки").quantity == 0
+
+
+def test_set_quantity_unknown_product_raises():
+    w = Warehouse()
+    with pytest.raises(KeyError):
+        w.set_quantity("нет-такого", 5)
+
+
+def test_set_negative_quantity_raises():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    with pytest.raises(ValueError):
+        w.set_quantity("яблоки", -1)
