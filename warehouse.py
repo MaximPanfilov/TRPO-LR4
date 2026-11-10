@@ -9,6 +9,22 @@ class Product:
     shipped_at: str = ""
 
 
+def is_valid_product_line(line: str) -> bool:
+    parts = line.split(";")
+    if len(parts) != 4:
+        return False
+    name, qty, _received_at, _shipped_at = parts
+    if not name.strip():
+        return False
+    try:
+        quantity = int(qty)
+    except ValueError:
+        return False
+    if quantity < 0:
+        return False
+    return True
+
+
 class Warehouse:
     def __init__(self):
         self._items = []
