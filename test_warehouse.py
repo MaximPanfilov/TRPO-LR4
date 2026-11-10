@@ -450,3 +450,43 @@ def test_total_by_product_reflects_updates():
     w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
     w.set_quantity("яблоки", 25)
     assert w.total_by_product() == {"яблоки": 25}
+
+
+def test_low_stock_empty_warehouse():
+    w = Warehouse()
+    assert w.low_stock(10) == []
+
+
+def test_low_stock_returns_products_below_threshold():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    w.add_product("сливы", 3, "2024-09-03", "2024-09-13")
+    low = w.low_stock(6)
+    assert [p.name for p in low] == ["сливы", "груши"]
+
+
+def test_low_stock_is_sorted_ascending_by_quantity():
+    w = Warehouse()
+    w.add_product("a", 3, "2024-09-01", "2024-09-10")
+    w.add_product("b", 1, "2024-09-02", "2024-09-12")
+    w.add_product("c", 2, "2024-09-03", "2024-09-13")
+    assert [p.name for p in w.low_stock(5)] == ["b", "c", "a"]
+
+
+def test_low_stock_does_not_include_equal_to_threshold():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    assert w.low_stock(10) == []
+
+
+def test_low_stock_zero_threshold_returns_empty():
+    w = Warehouse()
+    w.add_product("яблоки", 0, "2024-09-01", "2024-09-10")
+    assert w.low_stock(0) == []
+
+
+def test_low_stock_negative_threshold_returns_empty():
+    w = Warehouse()
+    w.add_product("яблоки", 1, "2024-09-01", "2024-09-10")
+    assert w.low_stock(-5) == []
