@@ -490,3 +490,53 @@ def test_low_stock_negative_threshold_returns_empty():
     w = Warehouse()
     w.add_product("яблоки", 1, "2024-09-01", "2024-09-10")
     assert w.low_stock(-5) == []
+
+
+def test_export_report_creates_file_with_header(tmp_path):
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    file = tmp_path / "report.csv"
+    w.export_report(str(file), threshold=5)
+    content = file.read_text(encoding="utf-8")
+    lines = content.strip().splitlines()
+    assert lines[0] == "name,quantity,received_at,shipped_at,is_low"
+    assert lines[1] == "яблоки,10,2024-09-01,2024-09-10,False"
+
+
+def test_export_report_marks_low_stock(tmp_path):
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 3, "2024-09-02", "2024-09-12")
+    file = tmp_path / "report.csv"
+    w.export_report(str(file), threshold=5)
+    lines = file.read_text(encoding="utf-8").strip().splitlines()
+    assert "яблоки,10,2024-09-01,2024-09-10,False" in lines
+    assert "груши,3,2024-09-02,2024-09-12,True" in lines
+
+
+def test_export_report_on_empty_warehouse_has_only_header(tmp_path):
+    w = Warehouse()
+    file = tmp_path / "report.csv"
+    w.export_report(str(file), threshold=5)
+    lines = file.read_text(encoding="utf-8").strip().splitlines()
+    assert lines == ["name,quantity,received_at,shipped_at,is_low"]
+
+
+def test_export_report_preserves_insertion_order(tmp_path):
+    w = Warehouse()
+    w.add_product("b", 1, "2024-09-01", "2024-09-10")
+    w.add_product("a", 2, "2024-09-02", "2024-09-12")
+    w.add_product("c", 3, "2024-09-03", "2024-09-13")
+    file = tmp_path / "report.csv"
+    w.export_report(str(file), threshold=5)
+    lines = file.read_text(encoding="utf-8").strip().splitlines()[1:]
+    assert [line.split(",")[0] for line in lines] == ["b", "a", "c"]
+
+
+def test_export_report_threshold_zero_no_items_are_low(tmp_path):
+    w = Warehouse()
+    w.add_product("яблоки", 0, "2024-09-01", "2024-09-10")
+    file = tmp_path / "report.csv"
+    w.export_report(str(file), threshold=0)
+    lines = file.read_text(encoding="utf-8").strip().splitlines()
+    assert lines[1].endswith(",False")

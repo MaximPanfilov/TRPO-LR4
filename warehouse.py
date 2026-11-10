@@ -1,3 +1,4 @@
+import csv
 from dataclasses import dataclass
 from datetime import date
 
@@ -156,6 +157,19 @@ class Warehouse:
         result = [p for p in self._items if p.quantity < threshold]
         result.sort(key=lambda p: p.quantity)
         return result
+
+    def export_report(self, path, threshold):
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["name", "quantity", "received_at", "shipped_at", "is_low"])
+            for p in self._items:
+                writer.writerow([
+                    p.name,
+                    p.quantity,
+                    p.received_at,
+                    p.shipped_at,
+                    p.quantity < threshold,
+                ])
 
     def find_product(self, name):
         needle = name.casefold()
