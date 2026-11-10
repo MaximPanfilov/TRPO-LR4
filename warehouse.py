@@ -113,6 +113,32 @@ class Warehouse:
             _parse_date(shipped_at)
         self.add_product(template_name, quantity, received_at, shipped_at)
 
+    def format_table(self):
+        headers = ["Название", "Кол-во", "Поступил", "Отгружен"]
+        rows = [
+            [p.name, str(p.quantity), p.received_at, p.shipped_at]
+            for p in self._items
+        ]
+        widths = [len(h) for h in headers]
+        for row in rows:
+            for i, cell in enumerate(row):
+                widths[i] = max(widths[i], len(str(cell)))
+
+        def sep():
+            return "+" + "+".join("-" * (w + 2) for w in widths) + "+"
+
+        def fmt(row):
+            cells = []
+            for i, cell in enumerate(row):
+                cells.append(" " + str(cell).ljust(widths[i]) + " ")
+            return "|" + "|".join(cells) + "|"
+
+        lines = [sep(), fmt(headers), sep()]
+        for row in rows:
+            lines.append(fmt(row))
+        lines.append(sep())
+        return "\n".join(lines)
+
     def find_product(self, name):
         for p in self._items:
             if p.name == name:
