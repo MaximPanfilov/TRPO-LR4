@@ -54,6 +54,12 @@ class Warehouse:
             raise ValueError(f"Товар '{name}' уже существует")
         self._items.append(Product(name, quantity, received_at, shipped_at))
 
+    def remove_product(self, name):
+        p = self.find_product(name)
+        if p is None:
+            raise KeyError(f"Товар '{name}' не найден")
+        self._items.remove(p)
+
     def find_product(self, name):
         for p in self._items:
             if p.name == name:
