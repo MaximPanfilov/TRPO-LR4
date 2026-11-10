@@ -44,3 +44,18 @@ class Warehouse:
                 self._items.append(
                     Product(name, int(qty), received_at, shipped_at)
                 )
+
+    def add_product(self, name, quantity, received_at="", shipped_at=""):
+        if not name.strip():
+            raise ValueError("Название товара не может быть пустым")
+        if quantity < 0:
+            raise ValueError("Количество не может быть отрицательным")
+        if self.find_product(name) is not None:
+            raise ValueError(f"Товар '{name}' уже существует")
+        self._items.append(Product(name, quantity, received_at, shipped_at))
+
+    def find_product(self, name):
+        for p in self._items:
+            if p.name == name:
+                return p
+        return None
