@@ -337,3 +337,36 @@ def test_format_table_is_aligned():
     # все линии одинаковой ширины (моноширинный шрифт, ровные рамки)
     widths = {len(line) for line in lines}
     assert len(widths) == 1
+
+
+def test_save_to_file_writes_all_products(tmp_path):
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    file = tmp_path / "out.txt"
+    w.save_to_file(str(file))
+    content = file.read_text(encoding="utf-8")
+    assert "яблоки;10;2024-09-01;2024-09-10" in content
+    assert "груши;5;2024-09-02;2024-09-12" in content
+
+
+def test_save_to_file_empty_warehouse_creates_empty_file(tmp_path):
+    w = Warehouse()
+    file = tmp_path / "out.txt"
+    w.save_to_file(str(file))
+    assert file.read_text(encoding="utf-8") == ""
+
+
+def test_save_then_load_roundtrip(tmp_path):
+    w1 = Warehouse()
+    w1.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w1.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    file = tmp_path / "dump.txt"
+    w1.save_to_file(str(file))
+
+    w2 = Warehouse()
+    w2.load_from_file(str(file))
+
+    a = [(p.name, p.quantity, p.received_at, p.shipped_at) for p in w1.get_items()]
+    b = [(p.name, p.quantity, p.received_at, p.shipped_at) for p in w2.get_items()]
+    assert a == b

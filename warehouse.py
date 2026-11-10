@@ -139,6 +139,11 @@ class Warehouse:
         lines.append(sep())
         return "\n".join(lines)
 
+    def save_to_file(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            for p in self._items:
+                f.write(f"{p.name};{p.quantity};{p.received_at};{p.shipped_at}\n")
+
     def find_product(self, name):
         for p in self._items:
             if p.name == name:
