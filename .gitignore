@@ -1,0 +1,10 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# локальные данные и артефакты demo-скрипта
+warehouse.txt
+report.csv
