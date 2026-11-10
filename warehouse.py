@@ -145,7 +145,12 @@ class Warehouse:
                 f.write(f"{p.name};{p.quantity};{p.received_at};{p.shipped_at}\n")
 
     def find_product(self, name):
+        needle = name.casefold()
         for p in self._items:
-            if p.name == name:
+            if p.name.casefold() == needle:
                 return p
         return None
+
+    def search_by_prefix(self, prefix):
+        needle = prefix.casefold()
+        return [p for p in self._items if p.name.casefold().startswith(needle)]
