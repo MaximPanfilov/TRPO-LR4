@@ -411,3 +411,42 @@ def test_search_by_prefix_empty_result():
     w = Warehouse()
     w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
     assert w.search_by_prefix("xyz") == []
+
+
+def test_total_quantity_on_empty_warehouse_is_zero():
+    w = Warehouse()
+    assert w.total_quantity() == 0
+
+
+def test_total_quantity_sums_all_products():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    w.add_product("сливы", 3, "2024-09-03", "2024-09-13")
+    assert w.total_quantity() == 18
+
+
+def test_total_quantity_reflects_updates():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.set_quantity("яблоки", 4)
+    assert w.total_quantity() == 4
+
+
+def test_total_by_product_on_empty_warehouse():
+    w = Warehouse()
+    assert w.total_by_product() == {}
+
+
+def test_total_by_product_returns_mapping():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    assert w.total_by_product() == {"яблоки": 10, "груши": 5}
+
+
+def test_total_by_product_reflects_updates():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.set_quantity("яблоки", 25)
+    assert w.total_by_product() == {"яблоки": 25}
