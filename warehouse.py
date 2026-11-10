@@ -80,11 +80,17 @@ class Warehouse:
         p.quantity = quantity
 
     def set_received_date(self, name, received_at):
-        _parse_date(received_at)
+        self._set_date_field(name, "received_at", received_at)
+
+    def set_shipped_date(self, name, shipped_at):
+        self._set_date_field(name, "shipped_at", shipped_at)
+
+    def _set_date_field(self, name, attr, value):
+        _parse_date(value)
         p = self.find_product(name)
         if p is None:
             raise KeyError(f"Товар '{name}' не найден")
-        p.received_at = received_at
+        setattr(p, attr, value)
 
     def find_product(self, name):
         for p in self._items:
