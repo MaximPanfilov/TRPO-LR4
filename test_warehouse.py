@@ -208,3 +208,41 @@ def test_set_received_date_nonsense_raises():
     w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
     with pytest.raises(ValueError):
         w.set_received_date("яблоки", "2024-13-40")
+
+
+def test_set_shipped_date_changes_value():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.set_shipped_date("яблоки", "2024-09-15")
+    assert w.find_product("яблоки").shipped_at == "2024-09-15"
+
+
+def test_set_shipped_date_does_not_touch_other_products():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    w.set_shipped_date("яблоки", "2024-10-01")
+    assert w.find_product("яблоки").shipped_at == "2024-10-01"
+    assert w.find_product("груши").shipped_at == "2024-09-12"
+
+
+def test_set_shipped_date_unknown_product_raises():
+    w = Warehouse()
+    with pytest.raises(KeyError):
+        w.set_shipped_date("нет-такого", "2024-09-15")
+
+
+def test_set_shipped_date_invalid_format_raises():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    with pytest.raises(ValueError):
+        w.set_shipped_date("яблоки", "15.09.2024")
+
+
+def test_set_shipped_date_keeps_received_and_quantity():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.set_shipped_date("яблоки", "2024-09-20")
+    p = w.find_product("яблоки")
+    assert p.received_at == "2024-09-01"
+    assert p.quantity == 10
