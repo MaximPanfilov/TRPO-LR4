@@ -289,3 +289,51 @@ def test_add_from_template_invalid_override_date_raises():
     w = Warehouse()
     with pytest.raises(ValueError):
         w.add_from_template("яблоки", 7, received_at="01.10.2024")
+
+
+def test_format_table_empty_warehouse():
+    w = Warehouse()
+    table = w.format_table()
+    lines = table.splitlines()
+    # заголовок + рамка, но без строк с товарами
+    assert any("Название" in line for line in lines)
+    assert all("яблоки" not in line for line in lines)
+
+
+def test_format_table_contains_all_products():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("груши", 5, "2024-09-02", "2024-09-12")
+    table = w.format_table()
+    assert "яблоки" in table
+    assert "груши" in table
+    assert "10" in table
+    assert "5" in table
+    assert "2024-09-01" in table
+    assert "2024-09-12" in table
+
+
+def test_format_table_has_header_and_borders():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    table = w.format_table()
+    lines = table.splitlines()
+    # минимум 4 строки: верхняя рамка, заголовок, разделитель, данные, нижняя рамка
+    assert len(lines) >= 5
+    assert lines[0].startswith("+")
+    assert lines[0].endswith("+")
+    assert lines[-1].startswith("+")
+    assert lines[-1].endswith("+")
+    for column in ("Название", "Кол-во", "Поступил", "Отгружен"):
+        assert column in table
+
+
+def test_format_table_is_aligned():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("очень-длинное-название-товара", 3, "2024-09-02", "2024-09-12")
+    table = w.format_table()
+    lines = table.splitlines()
+    # все линии одинаковой ширины (моноширинный шрифт, ровные рамки)
+    widths = {len(line) for line in lines}
+    assert len(widths) == 1
