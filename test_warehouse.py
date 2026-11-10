@@ -370,3 +370,44 @@ def test_save_then_load_roundtrip(tmp_path):
     a = [(p.name, p.quantity, p.received_at, p.shipped_at) for p in w1.get_items()]
     b = [(p.name, p.quantity, p.received_at, p.shipped_at) for p in w2.get_items()]
     assert a == b
+
+
+def test_find_product_exact_match():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    p = w.find_product("яблоки")
+    assert p is not None and p.name == "яблоки"
+
+
+def test_find_product_is_case_insensitive():
+    w = Warehouse()
+    w.add_product("Яблоки", 10, "2024-09-01", "2024-09-10")
+    assert w.find_product("яблоки") is not None
+    assert w.find_product("ЯБЛОКИ") is not None
+
+
+def test_find_product_returns_none_for_missing():
+    w = Warehouse()
+    assert w.find_product("нет-такого") is None
+
+
+def test_search_by_prefix_returns_matching_products():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    w.add_product("яблочный сок", 3, "2024-09-02", "2024-09-12")
+    w.add_product("груши", 5, "2024-09-03", "2024-09-13")
+    found = w.search_by_prefix("ябл")
+    names = sorted(p.name for p in found)
+    assert names == ["яблоки", "яблочный сок"]
+
+
+def test_search_by_prefix_is_case_insensitive():
+    w = Warehouse()
+    w.add_product("Яблоки", 10, "2024-09-01", "2024-09-10")
+    assert [p.name for p in w.search_by_prefix("ябл")] == ["Яблоки"]
+
+
+def test_search_by_prefix_empty_result():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    assert w.search_by_prefix("xyz") == []
