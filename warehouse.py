@@ -38,6 +38,8 @@ class Warehouse:
                 line = line.strip()
                 if not line:
                     continue
+                if not is_valid_product_line(line):
+                    continue
                 name, qty, received_at, shipped_at = line.split(";")
                 self._items.append(
                     Product(name, int(qty), received_at, shipped_at)
