@@ -144,6 +144,12 @@ class Warehouse:
             for p in self._items:
                 f.write(f"{p.name};{p.quantity};{p.received_at};{p.shipped_at}\n")
 
+    def total_quantity(self):
+        return sum(p.quantity for p in self._items)
+
+    def total_by_product(self):
+        return {p.name: p.quantity for p in self._items}
+
     def find_product(self, name):
         needle = name.casefold()
         for p in self._items:
