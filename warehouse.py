@@ -150,6 +150,13 @@ class Warehouse:
     def total_by_product(self):
         return {p.name: p.quantity for p in self._items}
 
+    def low_stock(self, threshold):
+        if threshold <= 0:
+            return []
+        result = [p for p in self._items if p.quantity < threshold]
+        result.sort(key=lambda p: p.quantity)
+        return result
+
     def find_product(self, name):
         needle = name.casefold()
         for p in self._items:
