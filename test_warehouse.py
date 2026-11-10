@@ -86,3 +86,33 @@ def test_load_empty_file_leaves_warehouse_empty(tmp_path):
     w = Warehouse()
     w.load_from_file(str(file))
     assert w.get_items() == []
+
+
+def test_add_product_appends_to_items():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    items = w.get_items()
+    assert len(items) == 1
+    assert items[0].name == "яблоки"
+    assert items[0].quantity == 10
+    assert items[0].received_at == "2024-09-01"
+    assert items[0].shipped_at == "2024-09-10"
+
+
+def test_add_product_with_negative_quantity_raises():
+    w = Warehouse()
+    with pytest.raises(ValueError):
+        w.add_product("яблоки", -1, "2024-09-01", "2024-09-10")
+
+
+def test_add_duplicate_product_raises():
+    w = Warehouse()
+    w.add_product("яблоки", 10, "2024-09-01", "2024-09-10")
+    with pytest.raises(ValueError):
+        w.add_product("яблоки", 5, "2024-09-02", "2024-09-11")
+
+
+def test_add_product_with_empty_name_raises():
+    w = Warehouse()
+    with pytest.raises(ValueError):
+        w.add_product("", 10, "2024-09-01", "2024-09-10")
