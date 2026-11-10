@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import date
 
 
 @dataclass
@@ -23,6 +24,16 @@ def is_valid_product_line(line: str) -> bool:
     if quantity < 0:
         return False
     return True
+
+
+def _parse_date(value: str):
+    """Разбирает строку YYYY-MM-DD и возвращает date; ValueError если формат/дата неверные."""
+    if not isinstance(value, str) or len(value) != 10 or value[4] != "-" or value[7] != "-":
+        raise ValueError(f"Дата должна быть в формате YYYY-MM-DD, получено: {value!r}")
+    try:
+        return date.fromisoformat(value)
+    except ValueError as e:
+        raise ValueError(f"Некорректная дата {value!r}: {e}")
 
 
 class Warehouse:
@@ -67,6 +78,13 @@ class Warehouse:
         if p is None:
             raise KeyError(f"Товар '{name}' не найден")
         p.quantity = quantity
+
+    def set_received_date(self, name, received_at):
+        _parse_date(received_at)
+        p = self.find_product(name)
+        if p is None:
+            raise KeyError(f"Товар '{name}' не найден")
+        p.received_at = received_at
 
     def find_product(self, name):
         for p in self._items:
