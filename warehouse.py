@@ -60,6 +60,14 @@ class Warehouse:
             raise KeyError(f"Товар '{name}' не найден")
         self._items.remove(p)
 
+    def set_quantity(self, name, quantity):
+        if quantity < 0:
+            raise ValueError("Количество не может быть отрицательным")
+        p = self.find_product(name)
+        if p is None:
+            raise KeyError(f"Товар '{name}' не найден")
+        p.quantity = quantity
+
     def find_product(self, name):
         for p in self._items:
             if p.name == name:
